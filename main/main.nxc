@@ -20,7 +20,7 @@
 
  mutex time_mutex;
  long init_time,time;
- int random_value;
+ int random_value = 0;
 
  //prototype declaration
  sub Init();
@@ -80,8 +80,16 @@
  sub Init(){
      SetSensorType(FRONT_LIGHT,SENSOR_TYPE_LIGHT_INACTIVE);
      SetSensorMode(FRONT_LIGHT,SENSOR_MODE_RAW);
+     
      SetSensorType(UNDER_LIGHT,SENSOR_TYPE_LIGHT_ACTIVE);
      SetSensorMode(UNDER_LIGHT,SENSOR_MODE_RAW);
+     
+     SetSensorType(RIGHT_TOUCH,SENSOR_TYPE_TOUCH);
+     SetSensorMode(RIGHT_TOUCH,SENSOR_MODE_BOOL);
+     
+     SetSensorType(LEFT_TOUCH,SENSOR_TYPE_TOUCH);
+     SetSensorMode(LEFT_TOUCH,SENSOR_MODE_BOOL);
+     
      StartTask(clock);
      ResetClock();
  }
