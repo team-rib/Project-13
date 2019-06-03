@@ -20,8 +20,8 @@
 
  mutex time_mutex;
  long init_time,time;
- int randam_value;
- 
+ int random_value;
+
  //prototype declaration
  sub Init();
  sub Left();
@@ -36,7 +36,7 @@
  sub MoveAround();
  sub RandomWalk();
  sub RandomMove();
- 
+
  task clock();
 
  //////////////
@@ -49,7 +49,7 @@
       Init();
 
       while(true){
-           if(Sensor(UNDER_LIGHT) > LIGHT_LIMIT){//if the light sensor exceeds LIGHT_LIMIT
+           if(Sensor(FRONT_LIGHT) > LIGHT_LIMIT){//if the light sensor exceeds LIGHT_LIMIT
                  RotateAround();
                  while(SearchAround()){
                       Fwd();
@@ -125,17 +125,17 @@
      }
      return sum/size;
  }
- 
+
  //search a ball all around
  //if find a ball,this function return true
  bool SearchAround(){
      ResetClock();
      while(true){
           //if the light sensor exceeds LIGHT_LIMIT
-          if(Sensor(UNDER_LIGHT) > LIGHT_LIMIT){
+          if(Sensor(FRONT_LIGHT) > LIGHT_LIMIT){
                 return true;
           }
-          
+
           if(time < 250){
                 Left();
           }else if(time < 750){
@@ -152,7 +152,7 @@
 
      }
  }
- 
+
  //reset clock
  sub ResetClock(){
      Acquire(time_mutex);
@@ -160,14 +160,14 @@
      time = 0;
      Release(time_mutex);
  }
- 
+
  sub RotateAround(){
-      int late_value = Sensor(FRONT_LIGHT);
+      int late_value = Sensor(UNDER_LIGHT);
       Back();
       Wait(1500);
 
       //shironohouga,ataiookii?
-      if(late_value < Sensor(FRONT_LIGHT)){
+      if(late_value < Sensor(UNDER_LIGHT)){
            Fwd();
            Wait(1500);
 
@@ -183,7 +183,7 @@
       Fwd();
       Wait(1500);
  }
- 
+
  sub MoveAround(){
      if(time < 2000){
           Fwd();
@@ -198,11 +198,16 @@
      }
 
  }
- 
+
  sub RandomWalk(){
+     if(Sensor(RIGHT_TOUCH) || Sensor(LEFT_TOUDH)){
+          Back();
+          Wait(1000);
+     }
+     
      if(time == 0){
-          random_value = Random(3);
-     }else if(time < 1000){
+          random_value = Random(4);
+     }else if(time < 800){
           RandomMove();
      }else{
           ResetClock();
