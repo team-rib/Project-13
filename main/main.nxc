@@ -13,10 +13,15 @@
  #define RIGHT_TOUCH IN_3
  #define LEFT_TOUDH IN_4
 
+ #define FWD 0
+ #define LEFT 1
+ #define RIGHT 2
+ #define BACK 3
 
  mutex time_mutex;
  long init_time,time;
-
+ int randam_value;
+ 
  //prototype declaration
  sub Init();
  sub Left();
@@ -29,6 +34,9 @@
  bool SearchAround();
  sub RotateAround();
  sub MoveAround();
+ sub RandomWalk();
+ sub RandomMove();
+ 
  task clock();
 
  //////////////
@@ -49,7 +57,7 @@
                  }
                  ResetClock();
            }else{
-                 MoveAround();
+                 RandomWalk();
            }
       }
 
@@ -191,3 +199,24 @@
 
  }
  
+ sub RandomWalk(){
+     if(time == 0){
+          random_value = Random(3);
+     }else if(time < 1000){
+          RandomMove();
+     }else{
+          ResetClock();
+     }
+ }
+
+ sub RandomMove(){
+     if(random_value == FWD){
+          Fwd();
+     }else if(random_value == LEFT){
+          Left();
+     }else if(random_value == RIGHT){
+          Right();
+     }else if(random_value == BACK){
+          Back();
+     }
+ }
