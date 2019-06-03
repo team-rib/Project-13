@@ -11,7 +11,7 @@
  #define FRONT_LIGHT IN_1
  #define UNDER_LIGHT IN_2
  #define RIGHT_TOUCH IN_3
- #define LEFT_TOUDH IN_4
+ #define LEFT_TOUCH IN_4
 
  #define FWD 0
  #define LEFT 1
@@ -208,12 +208,12 @@
  }
 
  sub RandomWalk(){
-     if(Sensor(RIGHT_TOUCH) || Sensor(LEFT_TOUDH)){
+     if(Sensor(RIGHT_TOUCH) || Sensor(LEFT_TOUCH)){
           Back();
-          Wait(1000);
+          Wait(2000);
      }
      
-     if(time == 0){
+     if(time < 100){
           random_value = Random(4);
      }else if(time < 800){
           RandomMove();
