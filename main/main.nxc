@@ -70,9 +70,9 @@
 
  //initial setting
  sub Init(){
-     SetSensorType(FRONT_LIGHT,SENSOR_TYPE_LIGHT_ACTIVE);
+     SetSensorType(FRONT_LIGHT,SENSOR_TYPE_LIGHT_INACTIVE);
      SetSensorMode(FRONT_LIGHT,SENSOR_MODE_RAW);
-     SetSensorType(UNDER_LIGHT,SENSOR_TYPE_LIGHT_INACTIVE);
+     SetSensorType(UNDER_LIGHT,SENSOR_TYPE_LIGHT_ACTIVE);
      SetSensorMode(UNDER_LIGHT,SENSOR_MODE_RAW);
      StartTask(clock);
      ResetClock();
