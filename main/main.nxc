@@ -4,6 +4,16 @@
  #define MOVE_POWER 50         //0~100
  #define LIGHT_LIMIT 500       //0~1023
 
+ #define LEFT_MOTOR OUT_A
+ #define RIGHT_MOTOR OUT_B
+ #define BACK_MOTOR OUT_C
+
+ #define FRONT_LIGHT IN_1
+ #define UNDER_LIGHT IN_2
+ #define RIGHT_TOUCH IN_3
+ #define LEFT_TOUDH IN_4
+
+
  mutex time_mutex;
  long init_time,time;
 
@@ -31,7 +41,7 @@
       Init();
 
       while(true){
-           if(SENSOR_2 > LIGHT_LIMIT){//if the light sensor exceeds LIGHT_LIMIT
+           if(Sensor(UNDER_LIGHT) > LIGHT_LIMIT){//if the light sensor exceeds LIGHT_LIMIT
                  RotateAround();
                  while(SearchAround()){
                       Fwd();
@@ -60,22 +70,22 @@
 
  //initial setting
  sub Init(){
-     SetSensorType(IN_1,SENSOR_TYPE_LIGHT_ACTIVE);
-     SetSensorMode(IN_1,SENSOR_MODE_RAW);
-     SetSensorType(IN_2,SENSOR_TYPE_LIGHT_INACTIVE);
-     SetSensorMode(IN_2,SENSOR_MODE_RAW);
+     SetSensorType(FRONT_LIGHT,SENSOR_TYPE_LIGHT_ACTIVE);
+     SetSensorMode(FRONT_LIGHT,SENSOR_MODE_RAW);
+     SetSensorType(UNDER_LIGHT,SENSOR_TYPE_LIGHT_INACTIVE);
+     SetSensorMode(UNDER_LIGHT,SENSOR_MODE_RAW);
      StartTask(clock);
      ResetClock();
  }
  //turn left
  sub Left(){
-     OnFwd(OUT_A,MOVE_POWER);
-     OnRev(OUT_B,MOVE_POWER);
+     OnFwd(LEFT_MOTOR,MOVE_POWER);
+     OnRev(RIGHT_MOTOR,MOVE_POWER);
  }
  //turn right
  sub Right(){
-     OnFwd(OUT_B,MOVE_POWER);
-     OnRev(OUT_A,MOVE_POWER);
+     OnFwd(RIGHT_MOTOR,MOVE_POWER);
+     OnRev(LEFT_MOTOR,MOVE_POWER);
  }
  //go forward
  sub Fwd(){
@@ -88,11 +98,11 @@
  //rotate at a fixed rate
  sub FwdRate(int left_rate,int right_rate){
      if(left_rate < right_rate){
-           OnFwd(OUT_A,100*left_rate/right_rate);
-           OnFwd(OUT_B,100);
+           OnFwd(LEFT_MOTOR,100*left_rate/right_rate);
+           OnFwd(RIGHT_MOTOR,100);
      }else{
-           OnFwd(OUT_A,100);
-           OnFwd(OUT_B,100*right_rate/left_rate);
+           OnFwd(LEFT_MOTOR,100);
+           OnFwd(RIGHT_MOTOR,100*right_rate/left_rate);
      }
 
  }
@@ -114,7 +124,7 @@
      ResetClock();
      while(true){
           //if the light sensor exceeds LIGHT_LIMIT
-          if(SENSOR_2 > LIGHT_LIMIT){
+          if(Sensor(UNDER_LIGHT) > LIGHT_LIMIT){
                 return true;
           }
           
@@ -144,20 +154,20 @@
  }
  
  sub RotateAround(){
-      int late_value = SENSOR_1;
+      int late_value = Sensor(FRONT_LIGHT);
       Back();
       Wait(1500);
 
       //shironohouga,ataiookii?
-      if(late_value < SENSOR_1){
+      if(late_value < Sensor(FRONT_LIGHT)){
            Fwd();
            Wait(1500);
 
            Left();
            Wait(1000);
 
-           FwdRate(3,5);
-           Wait(4000);
+           FwdRate(2,5);
+           Wait(2800);
 
            Right();
            Wait(1000);
@@ -180,3 +190,4 @@
      }
 
  }
+ 
