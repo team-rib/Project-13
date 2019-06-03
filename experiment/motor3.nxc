@@ -49,15 +49,15 @@
       //initial setting
       Init();
       
-      OnFwd(BACK_MOTOR,20);
-      wait(1000);
-      OnFwd(BACK_MOTOR,40);
-      wait(1000);
-      OnFwd(BACK_MOTOR,60);
-      wait(1000);
-      OnFwd(BACK_MOTOR,80);
-      wait(1000);
-      OnFwd(BACK_MOTOR,100);
+      OnRev(BACK_MOTOR,20);
+      Wait(1000);
+      OnRev(BACK_MOTOR,40);
+      Wait(1000);
+      OnRev(BACK_MOTOR,60);
+      Wait(1000);
+      OnRev(BACK_MOTOR,80);
+      Wait(1000);
+      OnRev(BACK_MOTOR,100);
       
       while(true){
 
