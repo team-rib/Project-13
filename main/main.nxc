@@ -21,6 +21,7 @@
  mutex time_mutex;
  long init_time,time;
  int random_value = 0;
+ bool stop_flag = false;
 
  //prototype declaration
  void Init();
@@ -40,6 +41,7 @@
 
 
  task clock();
+ task check_stop();
 
  //////////////
  ///  task  ///
@@ -71,6 +73,25 @@
            Acquire(time_mutex);
            time = CurrentTick() - init_time;
            Release(time_mutex);
+      }
+ }
+
+ task check_stop(){
+      int last_value = Sensor(UNDER_LIGHT);
+      int check_count = 0;
+      while(true){
+           Wait(1000);
+           value = Sensor(UNDER_LIGHT);
+           if(last_value - value < 10 && value - last_value < 10){
+                check_count++;
+                if(check_count >= 5){
+                     stop_flag = true;
+                }
+           }else if(check_count >= 5){
+                stop_flag = false;
+                check_count = 0;
+           }
+           last_value = value;
       }
  }
 
