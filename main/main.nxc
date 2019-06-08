@@ -29,7 +29,6 @@
  void Fwd();
  void Back();
  void FwdRate(int left_rate,int right_rate);
- int LightAve(int sensor_num,int size);
  void ResetClock();
  bool SearchAround();
  void RotateAround();
@@ -124,17 +123,6 @@
            OnFwd(RIGHT_MOTOR,100*right_rate/left_rate);
      }
 
- }
-
- //take the average of light sensor values
- int LightAve(int sensor_num,int size){
-     int sum = 0;
-     int i;
-     for(i = 0; i < size; i++){
-           sum += SensorRaw(sensor_num);
-           Wait(100);
-     }
-     return sum/size;
  }
 
  //search a ball all around
