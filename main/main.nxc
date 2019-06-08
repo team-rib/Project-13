@@ -226,9 +226,9 @@
  }
 
  void Drible(){
-
+     OnFwd(BACK_MOTOR,MOVE_POWER);
  }
 
  void Kick(){
-
+     OnRev(BACK_MOTOR,MOVE_POWER);
  }
