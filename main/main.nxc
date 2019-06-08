@@ -36,7 +36,10 @@
  sub MoveAround();
  sub RandomWalk();
  sub RandomMove();
-
+ sub Drible();
+ sub Kick();
+ 
+ 
  task clock();
 
  //////////////
@@ -232,4 +235,12 @@
      }else if(random_value == BACK){
           Back();
      }
+ }
+ 
+ sub Drible(){
+ 
+ }
+ 
+ sub Kick(){
+ 
  }
