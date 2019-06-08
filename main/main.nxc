@@ -23,23 +23,23 @@
  int random_value = 0;
 
  //prototype declaration
- sub Init();
- sub Left();
- sub Right();
- sub Fwd();
- sub Back();
- sub FwdRate(int left_rate,int right_rate);
+ void Init();
+ void Left();
+ void Right();
+ void Fwd();
+ void Back();
+ void FwdRate(int left_rate,int right_rate);
  int LightAve(int sensor_num,int size);
- sub ResetClock();
+ void ResetClock();
  bool SearchAround();
- sub RotateAround();
- sub MoveAround();
- sub RandomWalk();
- sub RandomMove();
- sub Drible();
- sub Kick();
- 
- 
+ void RotateAround();
+ void MoveAround();
+ void RandomWalk();
+ void RandomMove();
+ void Drible();
+ void Kick();
+
+
  task clock();
 
  //////////////
@@ -75,47 +75,47 @@
       }
  }
 
- //////////////////
- //  subroutine  //
- //////////////////
+ /////////////////
+ //  functions  //
+ /////////////////
 
  //initial setting
- sub Init(){
+ void Init(){
      SetSensorType(FRONT_LIGHT,SENSOR_TYPE_LIGHT_INACTIVE);
      SetSensorMode(FRONT_LIGHT,SENSOR_MODE_RAW);
-     
+
      SetSensorType(UNDER_LIGHT,SENSOR_TYPE_LIGHT_ACTIVE);
      SetSensorMode(UNDER_LIGHT,SENSOR_MODE_RAW);
-     
+
      SetSensorType(RIGHT_TOUCH,SENSOR_TYPE_TOUCH);
      SetSensorMode(RIGHT_TOUCH,SENSOR_MODE_BOOL);
-     
+
      SetSensorType(LEFT_TOUCH,SENSOR_TYPE_TOUCH);
      SetSensorMode(LEFT_TOUCH,SENSOR_MODE_BOOL);
-     
+
      StartTask(clock);
      ResetClock();
  }
  //turn left
- sub Left(){
+ void Left(){
      OnFwd(LEFT_MOTOR,MOVE_POWER);
      OnRev(RIGHT_MOTOR,MOVE_POWER);
  }
  //turn right
- sub Right(){
+ void Right(){
      OnFwd(RIGHT_MOTOR,MOVE_POWER);
      OnRev(LEFT_MOTOR,MOVE_POWER);
  }
  //go forward
- sub Fwd(){
+ void Fwd(){
      OnFwdSync(OUT_AB,MOVE_POWER,0);
  }
  //go back
- sub Back(){
+ void Back(){
      OnRevSync(OUT_AB,MOVE_POWER,0);
  }
  //rotate at a fixed rate
- sub FwdRate(int left_rate,int right_rate){
+ void FwdRate(int left_rate,int right_rate){
      if(left_rate < right_rate){
            OnFwd(LEFT_MOTOR,100*left_rate/right_rate);
            OnFwd(RIGHT_MOTOR,100);
@@ -165,14 +165,14 @@
  }
 
  //reset clock
- sub ResetClock(){
+ void ResetClock(){
      Acquire(time_mutex);
      init_time = CurrentTick();
      time = 0;
      Release(time_mutex);
  }
 
- sub RotateAround(){
+ void RotateAround(){
       int late_value = Sensor(UNDER_LIGHT);
       Back();
       Wait(1500);
@@ -195,7 +195,7 @@
       Wait(1500);
  }
 
- sub MoveAround(){
+ void MoveAround(){
      if(time < 2000){
           Fwd();
      }else if(time < 3000){
@@ -210,12 +210,12 @@
 
  }
 
- sub RandomWalk(){
+ void RandomWalk(){
      if(Sensor(RIGHT_TOUCH) || Sensor(LEFT_TOUCH)){
           Back();
           Wait(2000);
      }
-     
+
      if(time < 100){
           random_value = Random(4);
      }else if(time < 800){
@@ -225,7 +225,7 @@
      }
  }
 
- sub RandomMove(){
+ void RandomMove(){
      if(random_value == FWD){
           Fwd();
      }else if(random_value == LEFT){
@@ -236,11 +236,11 @@
           Back();
      }
  }
- 
- sub Drible(){
- 
+
+ void Drible(){
+
  }
- 
- sub Kick(){
- 
+
+ void Kick(){
+
  }
