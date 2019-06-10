@@ -21,6 +21,7 @@
  mutex time_mutex;
  long init_time,time;
  int random_value = 0;
+ int state = 0;
  bool stop_flag = false;
 
  //prototype declaration
@@ -58,6 +59,10 @@
                  while(SearchAround()){
                       Fwd();
                       Wait(1000);
+                      if(stop_flag){
+                           Back();
+                           Wait(1000);
+                      }
                  }
                  ResetClock();
            }else{
@@ -78,6 +83,7 @@
 
  task check_stop(){
       int last_value = Sensor(UNDER_LIGHT);
+      int value = 0;
       int check_count = 0;
       while(true){
            Wait(1000);
@@ -114,6 +120,7 @@
      SetSensorMode(LEFT_TOUCH,SENSOR_MODE_BOOL);
 
      StartTask(clock);
+     StartTask(check_stop);
      ResetClock();
  }
  //turn left
@@ -220,17 +227,23 @@
  }
 
  void RandomWalk(){
-     if(Sensor(RIGHT_TOUCH) || Sensor(LEFT_TOUCH)){
-          Back();
-          Wait(2000);
-     }
-
-     if(time < 100){
-          random_value = Random(4);
-     }else if(time < 800){
-          RandomMove();
-     }else{
+     if(Sensor(RIGHT_TOUCH)){
+          Left();
+          state = LEFT;
+          random_value = Random(1000);
           ResetClock();
+     }else if(Sensor(LEFT_TOUCH)){
+          Right();
+          state = RIGHT;
+          random_value = Random(1000);
+          ResetClock();
+     }else if(state == LEFT || state == RIGHT){
+          if(time > random_value){
+               state = FWD;
+          }
+     }else{
+          Fwd();
+          state = FWD;
      }
  }
 
