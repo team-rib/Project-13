@@ -1,5 +1,5 @@
  //This program is written by tane and ozono.
- //We create it to challenge this game.
+ //We create it to win this game.
 
  #define MOVE_POWER 50         //0~100
  #define LIGHT_LIMIT 500       //0~1023
@@ -53,18 +53,32 @@
       //initial setting
       Init();
 
+      Drible();
       while(true){
            if(Sensor(FRONT_LIGHT) > LIGHT_LIMIT){//if the light sensor exceeds LIGHT_LIMIT
                  RotateAround();
                  while(SearchAround()){
+                      if(Sensor(LEFT_TOUCH)){
+                           Left();
+                      }else if(Sensor(RIGHT_TOUCH)){
+                           Right();
+                      }else{
+                            Fwd();
+                            Wait(1000);
+                      }
                       Fwd();
                       Wait(1000);
-                      if(stop_flag){
-                           Back();
-                           Wait(1000);
-                      }
                  }
                  ResetClock();
+           }else if(stop_flag){
+                 Back();
+                 Wait(1000);
+                 if(Random(2) >= 1){
+                      Left();
+                 }else{
+                      Right();
+                 }
+                 Wait(500);
            }else{
                  RandomWalk();
            }
@@ -90,10 +104,13 @@
            value = Sensor(UNDER_LIGHT);
            if(last_value - value < 10 && value - last_value < 10){
                 check_count++;
-                if(check_count >= 5){
+                if(check_count >= 3){
                      stop_flag = true;
+                }else if(check_count >= 5){
+                     stop_flag = false;
+                     check_count = 0;
                 }
-           }else if(check_count >= 5){
+           }else if(check_count >= 3){
                 stop_flag = false;
                 check_count = 0;
            }
@@ -227,15 +244,15 @@
  }
 
  void RandomWalk(){
-     if(Sensor(RIGHT_TOUCH)){
+     if(Sensor(LEFT_TOUCH)){
           Left();
           state = LEFT;
-          random_value = Random(1000);
+          random_value = 300 + Random(800);
           ResetClock();
-     }else if(Sensor(LEFT_TOUCH)){
+     }else if(Sensor(RIGHT_TOUCH)){
           Right();
           state = RIGHT;
-          random_value = Random(1000);
+          random_value = 300 + Random(800);
           ResetClock();
      }else if(state == LEFT || state == RIGHT){
           if(time > random_value){
@@ -260,9 +277,9 @@
  }
 
  void Drible(){
-     OnFwd(BACK_MOTOR,MOVE_POWER);
+     OnFwd(BACK_MOTOR,100);
  }
 
  void Kick(){
-     OnRev(BACK_MOTOR,MOVE_POWER);
+     OnRev(BACK_MOTOR,100);
  }
