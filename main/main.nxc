@@ -1,7 +1,9 @@
  //This program is written by tane and ozono.
  //We create it to win this game.
 
- #define MOVE_POWER 50         //0~100
+ //black to white
+
+ #define MOVE_POWER 75         //0~100
  #define LIGHT_LIMIT 500       //0~1023
 
  #define LEFT_MOTOR OUT_A
@@ -20,6 +22,8 @@
 
  mutex time_mutex;
  long init_time,time;
+ mutex time_mutex2;
+ long init_time2,time2;
  int random_value = 0;
  int state = 0;
  bool stop_flag = false;
@@ -32,6 +36,7 @@
  void Back();
  void FwdRate(int left_rate,int right_rate);
  void ResetClock();
+ void ResetClock2();
  bool SearchAround();
  void RotateAround();
  void MoveAround();
@@ -42,6 +47,7 @@
 
 
  task clock();
+ task clock2();
  task check_stop();
 
  //////////////
@@ -66,8 +72,6 @@
                             Fwd();
                             Wait(1000);
                       }
-                      Fwd();
-                      Wait(1000);
                  }
                  ResetClock();
            }else if(stop_flag){
@@ -94,6 +98,14 @@
            Release(time_mutex);
       }
  }
+ 
+ task clock2(){
+      while(true){
+           Acquire(time_mutex2);
+           time2 = CurrentTick() - init_time2;
+           Release(time_mutex2);
+      }
+ }
 
  task check_stop(){
       int last_value = Sensor(UNDER_LIGHT);
@@ -104,13 +116,13 @@
            value = Sensor(UNDER_LIGHT);
            if(last_value - value < 10 && value - last_value < 10){
                 check_count++;
-                if(check_count >= 3){
+                if(check_count >= 2){
                      stop_flag = true;
-                }else if(check_count >= 5){
+                }else if(check_count >= 4){
                      stop_flag = false;
                      check_count = 0;
                 }
-           }else if(check_count >= 3){
+           }else if(check_count > 2){
                 stop_flag = false;
                 check_count = 0;
            }
@@ -137,8 +149,10 @@
      SetSensorMode(LEFT_TOUCH,SENSOR_MODE_BOOL);
 
      StartTask(clock);
+     StartTask(clock2);
      StartTask(check_stop);
      ResetClock();
+     ResetClock2();
  }
  //turn left
  void Left(){
@@ -205,27 +219,44 @@
      Release(time_mutex);
  }
 
+ void ResetClock2(){
+     Acquire(time_mutex2);
+     init_time2 = CurrentTick();
+     time2 = 0;
+     Release(time_mutex2);
+ }
+
  void RotateAround(){
+      bool r_flag = true;
       int late_value = Sensor(UNDER_LIGHT);
       Back();
-      Wait(1500);
+      Wait(1000);
+      if(late_value > Sensor(UNDER_LIGHT)){
+           while(r_flag){
+                if(time2 < 1000){
+                     Fwd();
+                }else if(time2 < 1700){
+                     Left();
+                }else if(time2 < 4600){
+                     FwdRate(2,5);
+                }else if(time2 < 5300){
+                     Right();
+                }else{
+                     ResetClock2();
+                     r_flag=false;
+                }
+                if(){
+                
+                }else{
+                }
+           }
+      }
+
 
       //shironohouga,ataiookii?
-      if(late_value < Sensor(UNDER_LIGHT)){
-           Fwd();
-           Wait(1500);
 
-           Left();
-           Wait(1000);
-
-           FwdRate(2,5);
-           Wait(2800);
-
-           Right();
-           Wait(1000);
-      }
       Fwd();
-      Wait(1500);
+      Wait(1000);
  }
 
  void MoveAround(){
@@ -247,20 +278,37 @@
      if(Sensor(LEFT_TOUCH)){
           Left();
           state = LEFT;
-          random_value = 300 + Random(800);
+          random_value = 300 + Random(600);
           ResetClock();
      }else if(Sensor(RIGHT_TOUCH)){
           Right();
           state = RIGHT;
-          random_value = 300 + Random(800);
+          random_value = 300 + Random(600);
           ResetClock();
      }else if(state == LEFT || state == RIGHT){
           if(time > random_value){
                state = FWD;
+               ResetClock();
           }
      }else{
-          Fwd();
-          state = FWD;
+          if(time < 3000){
+               Fwd();
+               state = FWD;
+          }else if(time < 3500){
+               if(state == FWD){
+                    if(Random(2) >= 1){
+                         state = LEFT;
+                    }else{
+                         state = RIGHT;
+                    }
+               }else if(state == LEFT){
+                    Left();
+               }else if(state == RIGHT){
+                    Right();
+               }
+          }else{
+               ResetClock();
+          }
      }
  }
 
@@ -277,9 +325,9 @@
  }
 
  void Drible(){
-     OnFwd(BACK_MOTOR,100);
+     OnRev(BACK_MOTOR,100);
  }
 
  void Kick(){
-     OnRev(BACK_MOTOR,100);
+     OnFwd(BACK_MOTOR,100);
  }
