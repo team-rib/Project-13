@@ -54,6 +54,21 @@
       Init();
 
       Drible();
+      OnFwdSync(OUT_AB,100,0);
+      Wait(1500);
+      while(SearchAround()){
+          if(Sensor(LEFT_TOUCH)){
+               Left();
+          }else if(Sensor(RIGHT_TOUCH)){
+               Right();
+          }else{
+               Fwd();
+               Wait(1000);
+          }
+          Fwd();
+          Wait(1000);
+      }
+      
       while(true){
            if(Sensor(FRONT_LIGHT) > LIGHT_LIMIT){//if the light sensor exceeds LIGHT_LIMIT
                  RotateAround();
@@ -104,13 +119,13 @@
            value = Sensor(UNDER_LIGHT);
            if(last_value - value < 10 && value - last_value < 10){
                 check_count++;
-                if(check_count >= 2){
+                if(check_count >= 1){
                      stop_flag = true;
-                }else if(check_count >= 4){
+                }else if(check_count >= 3){
                      stop_flag = false;
                      check_count = 0;
                 }
-           }else if(check_count >= 2){
+           }else if(check_count >= 1){
                 stop_flag = false;
                 check_count = 0;
            }
@@ -191,6 +206,8 @@
           }else if(time < 4750){
                 Left();
           }else if(time < 6000){
+                Right();
+          }else{
                 return false;
           }
 
@@ -208,12 +225,12 @@
  void RotateAround(){
       int late_value = Sensor(UNDER_LIGHT);
       Back();
-      Wait(1000);
+      Wait(700);
 
       //shironohouga,ataiookii?
       if(late_value < Sensor(UNDER_LIGHT)){
            Fwd();
-           Wait(1000);
+           Wait(700);
 
            Left();
            Wait(700);
@@ -225,7 +242,7 @@
            Wait(700);
       }
       Fwd();
-      Wait(1000);
+      Wait(1200);
  }
 
  void MoveAround(){
@@ -247,12 +264,12 @@
      if(Sensor(LEFT_TOUCH)){
           Left();
           state = LEFT;
-          random_value = 300 + Random(600);
+          random_value = 100 + Random(500);
           ResetClock();
      }else if(Sensor(RIGHT_TOUCH)){
           Right();
           state = RIGHT;
-          random_value = 300 + Random(600);
+          random_value = 100 + Random(500);
           ResetClock();
      }else if(state == LEFT || state == RIGHT){
           if(time > random_value){
@@ -260,10 +277,10 @@
                ResetClock();
           }
      }else{
-          if(time < 3000){
+          if(time < 4000){
                Fwd();
                state = FWD;
-          }else if(time < 3500){
+          }else if(time < 4500){
                if(state == FWD){
                     if(Random(2) >= 1){
                          state = LEFT;
