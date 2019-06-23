@@ -4,22 +4,26 @@
  #define MOVE_POWER 75         //0~100
  #define LIGHT_LIMIT 500       //0~1023
 
+ //MOTOR
  #define LEFT_MOTOR OUT_A
  #define RIGHT_MOTOR OUT_B
  #define BACK_MOTOR OUT_C
-
+ //SENSOR
  #define FRONT_LIGHT IN_1
  #define UNDER_LIGHT IN_2
  #define RIGHT_TOUCH IN_3
  #define LEFT_TOUCH IN_4
 
+ //STATE
  #define FWD 0
  #define LEFT 1
  #define RIGHT 2
  #define BACK 3
 
+ //clock task
  mutex time_mutex;
  long init_time,time;
+
  int random_value = 0;
  int state = 0;
  bool stop_flag = false;
@@ -53,9 +57,13 @@
       //initial setting
       Init();
 
-      Drible();
+      Drible();//always
+
+      //rush
       OnFwdSync(OUT_AB,100,0);
       Wait(1500);
+
+      //chase the ball first
       while(SearchAround()){
           if(Sensor(LEFT_TOUCH)){
                Left();
@@ -68,9 +76,12 @@
           Fwd();
           Wait(1000);
       }
-      
+
+      //loop
       while(true){
-           if(Sensor(FRONT_LIGHT) > LIGHT_LIMIT){//if the light sensor exceeds LIGHT_LIMIT
+
+           //if the light sensor exceeds LIGHT_LIMIT
+           if(Sensor(FRONT_LIGHT) > LIGHT_LIMIT){
                  RotateAround();
                  while(SearchAround()){
                       if(Sensor(LEFT_TOUCH)){
@@ -85,6 +96,8 @@
                       Wait(1000);
                  }
                  ResetClock();
+
+           //if robot does not move against the wall
            }else if(stop_flag){
                  Back();
                  Wait(1000);
@@ -94,6 +107,7 @@
                       Right();
                  }
                  Wait(500);
+
            }else{
                  RandomWalk();
            }
@@ -110,6 +124,7 @@
       }
  }
 
+ //Set a flag if robot does not move against the wall
  task check_stop(){
       int last_value = Sensor(UNDER_LIGHT);
       int value = 0;
@@ -222,12 +237,14 @@
      Release(time_mutex);
  }
 
+ //if it is reverse direction, it rotates around
  void RotateAround(){
       int late_value = Sensor(UNDER_LIGHT);
       Back();
       Wait(700);
 
-      //shironohouga,ataiookii?
+      // ">" attack black
+      // "<" attack white
       if(late_value < Sensor(UNDER_LIGHT)){
            Fwd();
            Wait(700);
@@ -245,6 +262,7 @@
       Wait(1200);
  }
 
+ //move around while moving forward
  void MoveAround(){
      if(time < 2000){
           Fwd();
@@ -260,6 +278,7 @@
 
  }
 
+ //move randomly
  void RandomWalk(){
      if(Sensor(LEFT_TOUCH)){
           Left();
@@ -298,22 +317,11 @@
      }
  }
 
- void RandomMove(){
-     if(random_value == FWD){
-          Fwd();
-     }else if(random_value == LEFT){
-          Left();
-     }else if(random_value == RIGHT){
-          Right();
-     }else if(random_value == BACK){
-          Back();
-     }
- }
-
+ //dribble the ball
  void Drible(){
      OnFwd(BACK_MOTOR,100);
  }
-
+ //kick the ball
  void Kick(){
      OnRev(BACK_MOTOR,100);
  }
