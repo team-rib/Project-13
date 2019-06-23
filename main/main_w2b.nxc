@@ -4,22 +4,26 @@
  #define MOVE_POWER 75         //0~100
  #define LIGHT_LIMIT 500       //0~1023
 
+ //MOTOR
  #define LEFT_MOTOR OUT_A
  #define RIGHT_MOTOR OUT_B
  #define BACK_MOTOR OUT_C
-
+ //SENSOR
  #define FRONT_LIGHT IN_1
  #define UNDER_LIGHT IN_2
  #define RIGHT_TOUCH IN_3
  #define LEFT_TOUCH IN_4
 
+ //STATE
  #define FWD 0
  #define LEFT 1
  #define RIGHT 2
  #define BACK 3
 
+ //clock task
  mutex time_mutex;
  long init_time,time;
+ 
  int random_value = 0;
  int state = 0;
  bool stop_flag = false;
@@ -52,10 +56,32 @@
  task main(){
       //initial setting
       Init();
+      
+      Drible();//always
+      
+      //rush
+      OnFwdSync(OUT_AB,100,0);
+      Wait(1500);
 
-      Drible();
+      //chase the ball first
+      while(SearchAround()){
+          if(Sensor(LEFT_TOUCH)){
+               Left();
+          }else if(Sensor(RIGHT_TOUCH)){
+               Right();
+          }else{
+               Fwd();
+               Wait(1000);
+          }
+          Fwd();
+          Wait(1000);
+      }
+
+      //loop
       while(true){
-           if(Sensor(FRONT_LIGHT) > LIGHT_LIMIT){//if the light sensor exceeds LIGHT_LIMIT
+      
+           //if the light sensor exceeds LIGHT_LIMIT
+           if(Sensor(FRONT_LIGHT) > LIGHT_LIMIT){
                  RotateAround();
                  while(SearchAround()){
                       if(Sensor(LEFT_TOUCH)){
@@ -70,6 +96,8 @@
                       Wait(1000);
                  }
                  ResetClock();
+                 
+           //if robot does not move against the wall
            }else if(stop_flag){
                  Back();
                  Wait(1000);
@@ -79,6 +107,7 @@
                       Right();
                  }
                  Wait(500);
+                 
            }else{
                  RandomWalk();
            }
@@ -94,7 +123,8 @@
            Release(time_mutex);
       }
  }
-
+ 
+ //Set a flag if robot does not move against the wall
  task check_stop(){
       int last_value = Sensor(UNDER_LIGHT);
       int value = 0;
@@ -104,13 +134,13 @@
            value = Sensor(UNDER_LIGHT);
            if(last_value - value < 10 && value - last_value < 10){
                 check_count++;
-                if(check_count >= 2){
+                if(check_count >= 1){
                      stop_flag = true;
-                }else if(check_count >= 4){
+                }else if(check_count >= 3){
                      stop_flag = false;
                      check_count = 0;
                 }
-           }else if(check_count >= 2){
+           }else if(check_count >= 1){
                 stop_flag = false;
                 check_count = 0;
            }
@@ -191,6 +221,8 @@
           }else if(time < 4750){
                 Left();
           }else if(time < 6000){
+                Right();
+          }else{
                 return false;
           }
 
@@ -205,15 +237,17 @@
      Release(time_mutex);
  }
 
+ //if it is reverse direction, it rotates around
  void RotateAround(){
       int late_value = Sensor(UNDER_LIGHT);
       Back();
-      Wait(1000);
+      Wait(700);
 
-      //shironohouga,ataiookii?
-      if(late_value < Sensor(UNDER_LIGHT)){
+      // ">" attack black
+      // "<" attack white
+      if(late_value > Sensor(UNDER_LIGHT)){
            Fwd();
-           Wait(1000);
+           Wait(700);
 
            Left();
            Wait(700);
@@ -225,9 +259,10 @@
            Wait(700);
       }
       Fwd();
-      Wait(1000);
+      Wait(1200);
  }
 
+ //move around while moving forward
  void MoveAround(){
      if(time < 2000){
           Fwd();
@@ -243,16 +278,17 @@
 
  }
 
+ //move randomly
  void RandomWalk(){
      if(Sensor(LEFT_TOUCH)){
           Left();
           state = LEFT;
-          random_value = 300 + Random(600);
+          random_value = 100 + Random(500);
           ResetClock();
      }else if(Sensor(RIGHT_TOUCH)){
           Right();
           state = RIGHT;
-          random_value = 300 + Random(600);
+          random_value = 100 + Random(500);
           ResetClock();
      }else if(state == LEFT || state == RIGHT){
           if(time > random_value){
@@ -260,10 +296,10 @@
                ResetClock();
           }
      }else{
-          if(time < 3000){
+          if(time < 4000){
                Fwd();
                state = FWD;
-          }else if(time < 3500){
+          }else if(time < 4500){
                if(state == FWD){
                     if(Random(2) >= 1){
                          state = LEFT;
@@ -280,23 +316,12 @@
           }
      }
  }
-
- void RandomMove(){
-     if(random_value == FWD){
-          Fwd();
-     }else if(random_value == LEFT){
-          Left();
-     }else if(random_value == RIGHT){
-          Right();
-     }else if(random_value == BACK){
-          Back();
-     }
- }
-
+ 
+ //dribble the ball
  void Drible(){
      OnFwd(BACK_MOTOR,100);
  }
-
+ //kick the ball
  void Kick(){
      OnRev(BACK_MOTOR,100);
  }
